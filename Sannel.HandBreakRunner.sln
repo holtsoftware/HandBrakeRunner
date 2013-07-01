@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sannel.HandBrakeRunner", "Sannel.HandBrakeRunner\Sannel.HandBrakeRunner.csproj", "{2F3964D5-96F0-44E3-944C-370BAF39F980}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sannel.HandBrakeRunner.Interfaces", "Sannel.HandBrakeRunner.Interfaces\Sannel.HandBrakeRunner.Interfaces.csproj", "{FF982348-DCC1-42EE-AAAC-2104CEBE79E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sannel.HandBreakRunner.Plugins", "Sannel.HandBreakRunner.Plugins\Sannel.HandBreakRunner.Plugins.csproj", "{7335267A-1592-4359-A810-B931C91228C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A34D9C7-4D45-4FB8-8ED1-53CF4DD7E18F}"
+	ProjectSection(SolutionItems) = preProject
+		License.txt = License.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F3964D5-96F0-44E3-944C-370BAF39F980}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F3964D5-96F0-44E3-944C-370BAF39F980}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F3964D5-96F0-44E3-944C-370BAF39F980}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F3964D5-96F0-44E3-944C-370BAF39F980}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF982348-DCC1-42EE-AAAC-2104CEBE79E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF982348-DCC1-42EE-AAAC-2104CEBE79E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF982348-DCC1-42EE-AAAC-2104CEBE79E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF982348-DCC1-42EE-AAAC-2104CEBE79E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7335267A-1592-4359-A810-B931C91228C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7335267A-1592-4359-A810-B931C91228C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7335267A-1592-4359-A810-B931C91228C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7335267A-1592-4359-A810-B931C91228C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
