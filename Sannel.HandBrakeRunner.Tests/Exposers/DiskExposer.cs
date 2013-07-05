@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sannel.HandBrakeRunner.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,19 @@ namespace Sannel.HandBrakeRunner.Tests.Exposers
 			get
 			{
 				return base.Values;
+			}
+		}
+
+		protected override IConfiguration CreateConfiguration()
+		{
+			return new ConfigurationExposer();
+		}
+
+		public IConfiguration GetConfiguration
+		{
+			get
+			{
+				return this.Configuration;
 			}
 		}
 	}

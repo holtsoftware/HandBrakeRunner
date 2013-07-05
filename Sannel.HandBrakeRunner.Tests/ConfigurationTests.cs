@@ -14,6 +14,7 @@ namespace Sannel.HandBrakeRunner.Tests
 	public class ConfigurationTests
 	{
 		[TestMethod]
+		[TestCategory("Configuration")]
 		public async Task LoadAsyncTest()
 		{
 			Directory.CreateDirectory("Dir1");
@@ -38,8 +39,8 @@ namespace Sannel.HandBrakeRunner.Tests
 			}
 
 			ConfigurationExposer config = new ConfigurationExposer();
-			
-			//AssertHelpers.ThrowsException<ArgumentNullException>( () => { config.LoadAsync(null).RunSynchronously(); });
+
+			AssertHelpers.ThrowsException<ArgumentNullException>(() => { config.LoadAsync(null).GetAwaiter().GetResult(); });
 
 			var rvalue = await config.LoadAsync("Dir1\\Config.xml");
 
@@ -54,7 +55,6 @@ namespace Sannel.HandBrakeRunner.Tests
 			Assert.AreEqual("This is the test Details", values["DETAILS"], "Details value does not match");
 			Assert.IsTrue(values.ContainsKey("YEAR"), "Year was not found");
 			Assert.AreEqual("2003", values["YEAR"], "Year value does not match");
-
 
 		}
 	}

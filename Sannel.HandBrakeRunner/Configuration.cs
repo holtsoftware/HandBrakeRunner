@@ -13,18 +13,11 @@ using System.Xml.Linq;
 
 namespace Sannel.HandBrakeRunner
 {
-	public class Configuration : IConfiguration
+	public class Configuration : ValuesBase, IConfiguration
 	{
 		private ILog log = LogManager.GetLogger(typeof(Configuration));
 
-		private Dictionary<String, String> values = new Dictionary<string, string>();
-		protected Dictionary<String, string> Values
-		{
-			get
-			{
-				return values;
-			}
-		}
+		
 
 		public virtual async Task<bool> LoadAsync(string fileName)
 		{
@@ -150,7 +143,7 @@ namespace Sannel.HandBrakeRunner
 
 					if (String.Compare(attribute.Name.ToString(), "template", true, CultureInfo.InvariantCulture) == 0)
 					{
-						String template = GetTemplatePath(attribute.Value, fileName);
+						String template = GetFullRelativePath(attribute.Value, fileName);
 						if (log.IsInfoEnabled)
 						{
 							log.InfoFormat("Template included full path {0}", template);
@@ -178,7 +171,7 @@ namespace Sannel.HandBrakeRunner
 					}
 					if (String.Compare(element.Name.ToString(), "template", true, CultureInfo.InvariantCulture) == 0)
 					{
-						String template = GetTemplatePath(element.Value, fileName);
+						String template = GetFullRelativePath(element.Value, fileName);
 						if (log.IsInfoEnabled)
 						{
 							log.InfoFormat("Template included full path {0}", template);
@@ -199,30 +192,9 @@ namespace Sannel.HandBrakeRunner
 			return true;
 		}
 
-		protected String GetTemplatePath(String template, String currentFile)
-		{
-			String dir = Path.GetDirectoryName(Path.GetFullPath(currentFile));
-			return Path.GetFullPath(Path.Combine(dir, template));
-		}
-
 		public virtual string Value(string key)
 		{
 			throw new NotImplementedException();
-		}
-
-		protected void SetValue(String name, String value)
-		{
-			if (String.IsNullOrWhiteSpace(name))
-			{
-				if (log.IsDebugEnabled)
-				{
-					log.Debug("An empty name was received");
-				}
-				return;
-			}
-
-			var fixedName = name.ToUpper(CultureInfo.InvariantCulture).Trim();
-			Values[fixedName] = value;
 		}
 	}
 }
