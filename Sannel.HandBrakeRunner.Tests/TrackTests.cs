@@ -26,7 +26,7 @@ namespace Sannel.HandBrakeRunner.Tests
 				new XElement("Cheese", "Cheddar"));
 
 			FileInfo template = new FileInfo("Template.xml");
-			using (StreamWriter writer = new StreamWriter(template.OpenWrite()))
+			using (StreamWriter writer = new StreamWriter(template.Open(FileMode.Create)))
 			{
 				await writer.WriteAsync(
 @"
@@ -69,6 +69,34 @@ namespace Sannel.HandBrakeRunner.Tests
 			Assert.AreEqual("2008", values["YEAR"], "Year value did not match");
 			Assert.IsTrue(values.ContainsKey("COLOR"), "Color was not found.");
 			Assert.AreEqual("Green", values["COLOR"], "Color value did not match");
+		}
+
+		[TestMethod]
+		[TestCategory("Track")]
+		public async Task GetValueAsyncTest()
+		{
+			TrackExposer exposer = new TrackExposer();
+			exposer.GetValues["TEST"] = "This is my Test";
+			exposer.GetValues["TEST2"] = "Another Test";
+			exposer.GetValues["TITLE"] = "Title value";
+
+			var disk = new DiskExposer();
+			exposer.Disk = disk;
+			disk.GetValues["DISKTITLE"] = "This is the disk title";
+			disk.GetValues["TITLE"] = "This is not the title we want.";
+
+			var config = disk.GetConfiguration as ConfigurationExposer;
+			config.GetValues["CONFIGTITLE"] = "This is the Config Title";
+			config.GetValues["DESCRIPTION"] = "This is the Description";
+			config.GetValues["TEST"] = "This is not the test we want.";
+
+			Assert.AreEqual("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
+			Assert.AreEqual("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
+			Assert.AreEqual("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
+			Assert.AreEqual("This is the disk title", await exposer.GetValueAsync("disktitle"), "DiskTitle value does not match");
+			Assert.AreEqual("This is the Config Title", await exposer.GetValueAsync("configtitle"), "ConfigTitle value does not match");
+			Assert.AreEqual("This is the Description", await exposer.GetValueAsync("description"), "Description value does not match");
+			Assert.IsNull(await exposer.GetValueAsync("cheese"), "cheese value was suppose to be null and was not");
 		}
 	}
 }

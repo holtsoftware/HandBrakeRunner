@@ -19,7 +19,7 @@ namespace Sannel.HandBrakeRunner.Tests
 		{
 			Directory.CreateDirectory("Dir1");
 			FileInfo file1 = new FileInfo("Dir1\\Config.xml");
-			using (StreamWriter writer = new StreamWriter(file1.OpenWrite()))
+			using (StreamWriter writer = new StreamWriter(file1.Open(FileMode.Create)))
 			{
 				await writer.WriteAsync(
 @"<Configuration config=""../Config.xml"">
@@ -29,7 +29,7 @@ namespace Sannel.HandBrakeRunner.Tests
 			}
 
 			FileInfo file2 = new FileInfo("Config.xml");
-			using (StreamWriter writer = new StreamWriter(file2.OpenWrite()))
+			using (StreamWriter writer = new StreamWriter(file2.Open(FileMode.Create)))
 			{
 				await writer.WriteAsync(
 @"<Configuration year=""2003"">
@@ -56,6 +56,21 @@ namespace Sannel.HandBrakeRunner.Tests
 			Assert.IsTrue(values.ContainsKey("YEAR"), "Year was not found");
 			Assert.AreEqual("2003", values["YEAR"], "Year value does not match");
 
+		}
+
+		[TestMethod]
+		[TestCategory("Configuration")]
+		public async Task GetValueAsyncTest()
+		{
+			ConfigurationExposer exposer = new ConfigurationExposer();
+			exposer.GetValues["TEST"] = "This is my Test";
+			exposer.GetValues["TEST2"] = "Another Test";
+			exposer.GetValues["TITLE"] = "Title value";
+
+			Assert.AreEqual("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
+			Assert.AreEqual("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
+			Assert.AreEqual("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
+			Assert.IsNull(await exposer.GetValueAsync("cheese"), "cheese value was suppose to be null and was not");
 		}
 	}
 }

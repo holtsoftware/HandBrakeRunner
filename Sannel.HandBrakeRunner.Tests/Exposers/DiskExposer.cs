@@ -26,7 +26,7 @@ namespace Sannel.HandBrakeRunner.Tests.Exposers
 		{
 			get
 			{
-				return this.Configuration;
+				return this.Configuration ?? (this.Configuration = CreateConfiguration());
 			}
 		}
 	}

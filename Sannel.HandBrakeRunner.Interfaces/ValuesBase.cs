@@ -44,6 +44,16 @@ namespace Sannel.HandBrakeRunner.Interfaces
 		}
 
 		/// <summary>
+		/// Converts the given <paramref name="key"/> to uppercase and trims it.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		protected virtual String NormalizeKey(String key)
+		{
+			return key.ToUpper(CultureInfo.InvariantCulture).Trim();
+		}
+
+		/// <summary>
 		/// Adds <paramref name="name"/> into values but first makes it all uppercase and trims it.
 		/// </summary>
 		/// <param name="name">The name of the value</param>
@@ -59,8 +69,7 @@ namespace Sannel.HandBrakeRunner.Interfaces
 				return;
 			}
 
-			var fixedName = name.ToUpper(CultureInfo.InvariantCulture).Trim();
-			Values[fixedName] = value;
+			Values[NormalizeKey(name)] = value;
 		}
 	}
 }

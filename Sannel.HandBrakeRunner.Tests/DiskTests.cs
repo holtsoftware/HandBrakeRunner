@@ -18,7 +18,7 @@ namespace Sannel.HandBrakeRunner.Tests
 		public async Task LoadAsyncTest()
 		{
 			FileInfo file1 = new FileInfo("Config.xml");
-			using (StreamWriter writer = new StreamWriter(file1.OpenWrite()))
+			using (StreamWriter writer = new StreamWriter(file1.Open(FileMode.Create)))
 			{
 				await writer.WriteAsync(
 @"<Configuration year=""2003"">
@@ -28,7 +28,7 @@ namespace Sannel.HandBrakeRunner.Tests
 			}
 
 			FileInfo template = new FileInfo("Template.xml");
-			using (StreamWriter writer = new StreamWriter(template.OpenWrite()))
+			using (StreamWriter writer = new StreamWriter(template.Open(FileMode.Create)))
 			{
 				await writer.WriteAsync(
 @"<Template>
@@ -37,7 +37,7 @@ namespace Sannel.HandBrakeRunner.Tests
 			}
 
 			FileInfo diskFile = new FileInfo("Disk.xml");
-			using (StreamWriter writer = new StreamWriter(diskFile.OpenWrite()))
+			using (StreamWriter writer = new StreamWriter(diskFile.Open(FileMode.Create)))
 			{
 				await writer.WriteAsync(
 @"<Disk config=""Config.xml"" prop2=""Prop 2 value"">
@@ -80,6 +80,27 @@ namespace Sannel.HandBrakeRunner.Tests
 			var tracks = disk.Tracks;
 			Assert.IsNotNull(tracks, "Tracks is null and should not be");
 			Assert.AreEqual(2, tracks.Count, "The tracks count is off.");
+		}
+
+		[TestMethod]
+		[TestCategory("Disk")]
+		public async Task GetValueAsyncTest()
+		{
+			DiskExposer exposer = new DiskExposer();
+			exposer.GetValues["TEST"] = "This is my Test";
+			exposer.GetValues["TEST2"] = "Another Test";
+			exposer.GetValues["TITLE"] = "Title value";
+
+			var config = exposer.GetConfiguration as ConfigurationExposer;
+			config.GetValues["CONFIGTITLE"] = "This is the Config Title";
+			config.GetValues["DESCRIPTION"] = "This is the Description";
+
+			Assert.AreEqual("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
+			Assert.AreEqual("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
+			Assert.AreEqual("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
+			Assert.AreEqual("This is the Config Title", await exposer.GetValueAsync("configtitle"), "ConfigTitle value does not match");
+			Assert.AreEqual("This is the Description", await exposer.GetValueAsync("description"), "Description value does not match");
+			Assert.IsNull(await exposer.GetValueAsync("cheese"), "cheese value was suppose to be null and was not");
 		}
 	}
 }

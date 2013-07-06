@@ -17,6 +17,11 @@ namespace Sannel.HandBrakeRunner.Interfaces
 			set;
 		}
 
-		String Value(String key);
+		String this[String key]
+		{
+			get;
+		}
+
+		Task<String> GetValueAsync(String key);
 	}
 }

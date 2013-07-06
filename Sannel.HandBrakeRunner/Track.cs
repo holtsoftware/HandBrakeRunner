@@ -64,6 +64,21 @@ namespace Sannel.HandBrakeRunner
 					}
 				}
 			}
+			else
+			{
+				var templateFile = this["template"];
+				if (!String.IsNullOrWhiteSpace(templateFile))
+				{
+					var loaded = LoadTemplate(GetFullRelativePath(templateFile, diskFullPath));
+					if (!loaded)
+					{
+						if (log.IsErrorEnabled)
+						{
+							log.Error("Error loading template");
+						}
+					}
+				}
+			}
 
 			foreach (var attribute in track.Attributes())
 			{
@@ -174,9 +189,43 @@ namespace Sannel.HandBrakeRunner
 			return true;
 		}
 
-		public string Value(string key)
+		/// <summary>
+		/// Returns the value associated with <paramref name="key"/> or null if its not found.
+		/// </summary>
+		/// <param name="key">The key associated with the desired value.</param>
+		/// <returns></returns>
+		public virtual string this[string key]
 		{
-			throw new NotImplementedException();
+			get
+			{
+				var fixedKey = NormalizeKey(key);
+				String value = null;
+
+				if (Values.ContainsKey(fixedKey))
+				{
+					value = Values[fixedKey];
+				}
+
+				if (value == null && Disk != null)
+				{
+					value = Disk[fixedKey];
+				}
+
+				return value;
+			}
+		}
+
+		/// <summary>
+		/// Returns the value associated with <paramref name="key"/> or null if its not found.
+		/// </summary>
+		/// <param name="key">The key associated with the desired value.</param>
+		/// <returns></returns>
+		public virtual Task<string> GetValueAsync(string key)
+		{
+			return Task.Run<String>(() =>
+			{
+				return this[key];
+			});
 		}
 	}
 }

@@ -192,9 +192,38 @@ namespace Sannel.HandBrakeRunner
 			return true;
 		}
 
-		public virtual string Value(string key)
+		/// <summary>
+		/// Returns the value associated with <paramref name="key"/> or null if its not found.
+		/// </summary>
+		/// <param name="key">The key associated with the desired value.</param>
+		/// <returns></returns>
+		public virtual Task<String> GetValueAsync(String key)
 		{
-			throw new NotImplementedException();
+			return Task.Run<String>(() =>
+				{
+					return this[key]; ;
+				});
+		}
+
+
+		/// <summary>
+		/// Returns the value associated with <paramref name="key"/> or null if its not found.
+		/// </summary>
+		/// <param name="key">The key associated with the desired value.</param>
+		/// <returns></returns>
+		public string this[string key]
+		{
+			get
+			{
+				var fixedKey = NormalizeKey(key);
+
+				if (Values.ContainsKey(fixedKey))
+				{
+					return Values[fixedKey];
+				}
+
+				return null;
+			}
 		}
 	}
 }
