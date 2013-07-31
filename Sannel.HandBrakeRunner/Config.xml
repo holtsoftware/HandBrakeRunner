@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+	<HandBrakeEncoder>Sannel.HandBrakeRunner.Plugins.HandBrakeEncoder, Sannel.HandBrakeRunner.Plugins</HandBrakeEncoder>
+	<AtomicParsleyMetaData>Sannel.HandBrakeRunner.Plugins.HandBrakeEncoder, Sannel.HandBrakeRunner.Plugins</AtomicParsleyMetaData>
+	<Encoder>${HandBrakeEncoder}</Encoder>
+	<MetaData>${AtomicParsleyMetaData}</MetaData>
+	<InputPath>/dev/dvd</InputPath>
+</Configuration>

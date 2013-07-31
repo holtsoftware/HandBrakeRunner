@@ -70,9 +70,14 @@
     <Compile Include="DiskTests.cs" />
     <Compile Include="Exposers\ConfigurationExposer.cs" />
     <Compile Include="Exposers\DiskExposer.cs" />
+    <Compile Include="Exposers\HandBrakeEncoderExposer.cs" />
+    <Compile Include="Exposers\RunnerExposer.cs" />
     <Compile Include="Exposers\TrackExposer.cs" />
+    <Compile Include="HandBrakeEncoderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunnerTests.cs" />
     <Compile Include="TrackTests.cs" />
+    <Compile Include="MethodsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -82,13 +87,13 @@
       <Project>{ff982348-dcc1-42ee-aaac-2104cebe79e9}</Project>
       <Name>Sannel.HandBrakeRunner.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sannel.HandBrakeRunner.Plugins\Sannel.HandBrakeRunner.Plugins.csproj">
+      <Project>{7335267a-1592-4359-a810-b931c91228c2}</Project>
+      <Name>Sannel.HandBrakeRunner.Plugins</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sannel.HandBrakeRunner\Sannel.HandBrakeRunner.csproj">
       <Project>{2f3964d5-96f0-44e3-944c-370baf39f980}</Project>
       <Name>Sannel.HandBrakeRunner</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Sannel.HandBreakRunner.Plugins\Sannel.HandBreakRunner.Plugins.csproj">
-      <Project>{7335267a-1592-4359-a810-b931c91228c2}</Project>
-      <Name>Sannel.HandBreakRunner.Plugins</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

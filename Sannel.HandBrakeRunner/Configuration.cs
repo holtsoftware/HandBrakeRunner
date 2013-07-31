@@ -1,6 +1,6 @@
 ﻿using log4net;
 using Sannel.HandBrakeRunner.Interfaces;
-using Sannel.HandBreakRunner.Plugins;
+using Sannel.HandBrakeRunner.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -132,6 +132,8 @@ namespace Sannel.HandBrakeRunner
 				}
 			}
 
+			String configFilePath = Path.GetDirectoryName(Path.GetFullPath(fileName));
+
 			foreach (var attribute in root.Attributes())
 			{
 				if (attribute.NodeType == System.Xml.XmlNodeType.Attribute)
@@ -148,11 +150,11 @@ namespace Sannel.HandBrakeRunner
 						{
 							log.InfoFormat("Template included full path {0}", template);
 						}
-						SetValue(attribute.Name.ToString(), template);
+						SetValue(attribute.Name.ToString(), template, configFilePath);
 					}
 					else
 					{
-						SetValue(attribute.Name.ToString(), attribute.Value);
+						SetValue(attribute.Name.ToString(), attribute.Value, configFilePath);
 					}
 				}
 				else if (log.IsDebugEnabled)
@@ -176,11 +178,11 @@ namespace Sannel.HandBrakeRunner
 						{
 							log.InfoFormat("Template included full path {0}", template);
 						}
-						SetValue(element.Name.ToString(), template);
+						SetValue(element.Name.ToString(), template, configFilePath);
 					}
 					else
 					{
-						SetValue(element.Name.ToString(), element.Value);
+						SetValue(element.Name.ToString(), element.Value, configFilePath);
 					}
 				}
 				else if(log.IsDebugEnabled)
@@ -197,9 +199,9 @@ namespace Sannel.HandBrakeRunner
 		/// </summary>
 		/// <param name="key">The key associated with the desired value.</param>
 		/// <returns></returns>
-		public virtual Task<String> GetValueAsync(String key)
+		public virtual Task<PropertyMetaData> GetValueAsync(String key)
 		{
-			return Task.Run<String>(() =>
+			return Task.Run<PropertyMetaData>(() =>
 				{
 					return this[key]; ;
 				});
@@ -211,7 +213,7 @@ namespace Sannel.HandBrakeRunner
 		/// </summary>
 		/// <param name="key">The key associated with the desired value.</param>
 		/// <returns></returns>
-		public string this[string key]
+		public override PropertyMetaData this[string key]
 		{
 			get
 			{

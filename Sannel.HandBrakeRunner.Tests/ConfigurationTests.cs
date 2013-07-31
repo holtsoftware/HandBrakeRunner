@@ -48,13 +48,13 @@ namespace Sannel.HandBrakeRunner.Tests
 
 			var values = config.GetValues;
 			Assert.IsTrue(values.ContainsKey("TITLE1"), "Title1 was not found");
-			Assert.AreEqual("Title", values["TITLE1"], "Title1 value does not match");
+			Assert.AreEqual<String>("Title", values["TITLE1"], "Title1 value does not match");
 			Assert.IsTrue(values.ContainsKey("TITLE2"), "Title2 was not found");
-			Assert.AreEqual("number six", values["TITLE2"], "Title2 value does not match");
+			Assert.AreEqual<String>("number six", values["TITLE2"], "Title2 value does not match");
 			Assert.IsTrue(values.ContainsKey("DETAILS"), "Details was not found");
-			Assert.AreEqual("This is the test Details", values["DETAILS"], "Details value does not match");
+			Assert.AreEqual<String>("This is the test Details", values["DETAILS"], "Details value does not match");
 			Assert.IsTrue(values.ContainsKey("YEAR"), "Year was not found");
-			Assert.AreEqual("2003", values["YEAR"], "Year value does not match");
+			Assert.AreEqual<String>("2003", values["YEAR"], "Year value does not match");
 
 		}
 
@@ -67,9 +67,9 @@ namespace Sannel.HandBrakeRunner.Tests
 			exposer.GetValues["TEST2"] = "Another Test";
 			exposer.GetValues["TITLE"] = "Title value";
 
-			Assert.AreEqual("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
-			Assert.AreEqual("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
-			Assert.AreEqual("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
+			Assert.AreEqual<String>("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
+			Assert.AreEqual<String>("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
+			Assert.AreEqual<String>("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
 			Assert.IsNull(await exposer.GetValueAsync("cheese"), "cheese value was suppose to be null and was not");
 		}
 	}

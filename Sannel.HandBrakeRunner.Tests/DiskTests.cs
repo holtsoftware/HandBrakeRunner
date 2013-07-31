@@ -62,20 +62,20 @@ namespace Sannel.HandBrakeRunner.Tests
 			var diskValues = disk.GetValues;
 			Assert.IsNotNull(diskValues, "DiskValues is null");
 			Assert.IsTrue(diskValues.ContainsKey("PROP1"), "Prop1 was not found");
-			Assert.AreEqual("This is Prop1", diskValues["PROP1"], "Prop1 value was not correct");
+			Assert.AreEqual<String>("This is Prop1", diskValues["PROP1"], "Prop1 value was not correct");
 			Assert.IsTrue(diskValues.ContainsKey("PROP2"), "Prop2 was not found");
-			Assert.AreEqual("Prop 2 value", diskValues["PROP2"], "Prop2 value was not correct");
+			Assert.AreEqual<String>("Prop 2 value", diskValues["PROP2"], "Prop2 value was not correct");
 			Assert.IsTrue(diskValues.ContainsKey("TEMPLATE"), "Template was not found.");
-			Assert.AreEqual(Path.GetFullPath("Template.xml"), diskValues["TEMPLATE"], "Template value did not match.");
+			Assert.AreEqual<String>(Path.GetFullPath("Template.xml"), diskValues["TEMPLATE"], "Template value did not match.");
 
 			Assert.IsInstanceOfType(disk.GetConfiguration, typeof(ConfigurationExposer));
 			ConfigurationExposer config = disk.GetConfiguration as ConfigurationExposer;
 			var configValues = config.GetValues;
 			Assert.IsNotNull(configValues, "ConfigValues is null and should not be");
 			Assert.IsTrue(configValues.ContainsKey("TITLE2"), "Title2 was not found");
-			Assert.AreEqual("Title 2", configValues["TITLE2"], "Title2 value was not correct");
+			Assert.AreEqual<String>("Title 2", configValues["TITLE2"], "Title2 value was not correct");
 			Assert.IsTrue(configValues.ContainsKey("DETAILS"), "Details was not found");
-			Assert.AreEqual("This is the test Details", configValues["DETAILS"], "Details did not match");
+			Assert.AreEqual<String>("This is the test Details", configValues["DETAILS"], "Details did not match");
 
 			var tracks = disk.Tracks;
 			Assert.IsNotNull(tracks, "Tracks is null and should not be");
@@ -95,11 +95,11 @@ namespace Sannel.HandBrakeRunner.Tests
 			config.GetValues["CONFIGTITLE"] = "This is the Config Title";
 			config.GetValues["DESCRIPTION"] = "This is the Description";
 
-			Assert.AreEqual("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
-			Assert.AreEqual("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
-			Assert.AreEqual("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
-			Assert.AreEqual("This is the Config Title", await exposer.GetValueAsync("configtitle"), "ConfigTitle value does not match");
-			Assert.AreEqual("This is the Description", await exposer.GetValueAsync("description"), "Description value does not match");
+			Assert.AreEqual<String>("This is my Test", await exposer.GetValueAsync("test"), "Test value does not match");
+			Assert.AreEqual<String>("Another Test", await exposer.GetValueAsync("test2"), "Test2 value does not match");
+			Assert.AreEqual<String>("Title value", await exposer.GetValueAsync("title"), "Title value does not match");
+			Assert.AreEqual<String>("This is the Config Title", await exposer.GetValueAsync("configtitle"), "ConfigTitle value does not match");
+			Assert.AreEqual<String>("This is the Description", await exposer.GetValueAsync("description"), "Description value does not match");
 			Assert.IsNull(await exposer.GetValueAsync("cheese"), "cheese value was suppose to be null and was not");
 		}
 	}

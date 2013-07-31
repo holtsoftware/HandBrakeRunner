@@ -6,15 +6,10 @@ using System.Threading.Tasks;
 
 namespace Sannel.HandBrakeRunner.Interfaces
 {
-	public interface IDisk
+	public interface IEncoder
 	{
-		Task<bool> LoadAsync(String fileName);
+		String GetFileExt(ITrack track);
 
-		PropertyMetaData this[String key]
-		{
-			get;
-		}
-
-		Task<PropertyMetaData> GetValueAsync(String key);
+		Task<bool> RunAsync(ITrack track, String tmpFilePath);
 	}
 }

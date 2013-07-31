@@ -9,7 +9,7 @@ namespace Sannel.HandBrakeRunner.Tests.Exposers
 {
 	public class DiskExposer : Disk
 	{
-		public Dictionary<String, String> GetValues
+		public Dictionary<String, PropertyMetaData> GetValues
 		{
 			get
 			{

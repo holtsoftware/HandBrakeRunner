@@ -5,10 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sannel.HandBreakRunner.Plugins
+namespace Sannel.HandBrakeRunner.Plugins
 {
 	public static class EnvironmentHelpers
 	{
+		public static String GetTempFile(String extention)
+		{
+			var tmpFile = Path.GetTempFileName();
+			var dir = Path.GetDirectoryName(tmpFile);
+			var file = Path.Combine(dir, Path.GetFileNameWithoutExtension(tmpFile) + extention);
+
+			return file;
+		}
+
+		/// <summary>
+		/// Right now this returns Path.GetTempPath but if i have issues with that in the future i will be adding more logic.
+		/// </summary>
+		/// <returns></returns>
 		public static String GetTempDir()
 		{
 			return Path.GetTempPath();

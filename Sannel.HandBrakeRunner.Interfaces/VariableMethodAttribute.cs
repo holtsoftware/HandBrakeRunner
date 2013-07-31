@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Sannel.HandBrakeRunner.Interfaces
 {
-	public interface ITrack
+	[AttributeUsage(AttributeTargets.Method)]
+	public class VariableMethodAttribute : System.Attribute
 	{
-		Task<bool> LoadTrackAsync(XElement track, String diskFullPath);
-
-		IDisk Disk
+		public String Name
 		{
 			get;
 			set;
 		}
 
-		PropertyMetaData this[String key]
+		public String Description
 		{
 			get;
+			set;
 		}
 
-		Task<PropertyMetaData> GetValueAsync(String key);
+		public VariableMethodAttribute(String name)
+		{
+			Name = name;
+		}
 	}
 }

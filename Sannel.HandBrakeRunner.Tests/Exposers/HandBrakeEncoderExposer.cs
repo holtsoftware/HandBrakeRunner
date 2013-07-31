@@ -1,4 +1,5 @@
 ﻿using Sannel.HandBrakeRunner.Interfaces;
+using Sannel.HandBrakeRunner.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,11 @@ using System.Threading.Tasks;
 
 namespace Sannel.HandBrakeRunner.Tests.Exposers
 {
-	public class ConfigurationExposer : Configuration
+	public class HandBrakeEncoderExposer : HandBrakeEncoder
 	{
-
-		public Dictionary<String, PropertyMetaData> GetValues
+		public String GenerateArgumentsExposed(String tmpFilePath, ITrack track)
 		{
-			get
-			{
-				return base.Values;
-			}
+			return base.GenerateArguments(tmpFilePath, track);
 		}
 	}
 }

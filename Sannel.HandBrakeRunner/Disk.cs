@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Sannel.HandBrakeRunner
@@ -42,6 +43,8 @@ namespace Sannel.HandBrakeRunner
 				return false;
 			}
 
+			var diskDirectory = Path.GetDirectoryName(Path.GetFullPath(fileName));
+
 			XDocument document = null;
 
 			var loaded = await Task.Run<bool>(() =>
@@ -60,7 +63,15 @@ namespace Sannel.HandBrakeRunner
 				{
 					if (log.IsErrorEnabled)
 					{
-						log.ErrorFormat("Access to file {0} is denied. SecurityException: {0}", se);
+						log.ErrorFormat("Access to file {0} is denied. SecurityException: {1}", fullPath, se);
+					}
+					return false;
+				}
+				catch (XmlException xe)
+				{
+					if (log.IsErrorEnabled)
+					{
+						log.ErrorFormat("Loading file {0} through an XmlException exception {1}", fullPath, xe);
 					}
 					return false;
 				}
@@ -68,7 +79,7 @@ namespace Sannel.HandBrakeRunner
 				{
 					if (log.IsErrorEnabled)
 					{
-						log.ErrorFormat("Loading file {0} through a format exception {0}", fullPath, fe);
+						log.ErrorFormat("Loading file {0} through a format exception {1}", fullPath, fe);
 					}
 					return false;
 				}
@@ -146,11 +157,11 @@ namespace Sannel.HandBrakeRunner
 						{
 							log.InfoFormat("Template included full path {0}", template);
 						}
-						SetValue(attribute.Name.ToString(), template);
+						SetValue(attribute.Name.ToString(), template, diskDirectory);
 					}
 					else
 					{
-						SetValue(attribute.Name.ToString(), attribute.Value);
+						SetValue(attribute.Name.ToString(), attribute.Value, diskDirectory);
 					}
 				}
 				else if (log.IsDebugEnabled)
@@ -190,11 +201,11 @@ namespace Sannel.HandBrakeRunner
 						{
 							log.InfoFormat("Template included full path {0}", template);
 						}
-						SetValue(element.Name.ToString(), template);
+						SetValue(element.Name.ToString(), template, diskDirectory);
 					}
 					else
 					{
-						SetValue(element.Name.ToString(), element.Value);
+						SetValue(element.Name.ToString(), element.Value, diskDirectory);
 					}
 				}
 				else if (log.IsDebugEnabled)
@@ -227,7 +238,7 @@ namespace Sannel.HandBrakeRunner
 		/// </summary>
 		/// <param name="key">The key associated with the desired value.</param>
 		/// <returns></returns>
-		public virtual string this[string key]
+		public override PropertyMetaData this[string key]
 		{
 			get 
 			{
@@ -252,9 +263,9 @@ namespace Sannel.HandBrakeRunner
 		/// </summary>
 		/// <param name="key">The key associated with the desired value.</param>
 		/// <returns></returns>
-		public virtual Task<string> GetValueAsync(string key)
+		public virtual Task<PropertyMetaData> GetValueAsync(string key)
 		{
-			return Task.Run<String>(() =>
+			return Task.Run<PropertyMetaData>(() =>
 				{
 					return this[key];
 				});

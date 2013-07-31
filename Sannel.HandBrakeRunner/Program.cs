@@ -18,6 +18,13 @@ using System.Linq;
 using log4net;
 using Sannel.Helpers;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Runtime.Remoting;
+using Sannel.HandBrakeRunner.Interfaces;
+using System.IO;
+using System.Threading;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Sannel.HandBrakeRunner
 {
@@ -25,31 +32,29 @@ namespace Sannel.HandBrakeRunner
 	{
 		static ILog log = LogManager.GetLogger(typeof(Program));
 
-		static void changeLogLevel(String level)
+		private sealed class SingleThreadSynchronizationContext :  
+			SynchronizationContext
 		{
-			log4net.Repository.Hierarchy.Hierarchy h = (log4net.Repository.Hierarchy.Hierarchy)log4net.LogManager.GetRepository();
-			log4net.Repository.Hierarchy.Logger rootLogger = h.Root;
-			rootLogger.Level = h.LevelMap[level];
-			log.WarnFormat("Changing log level to {0}", level);
-		}
+			private readonly
+			 BlockingCollection<KeyValuePair<SendOrPostCallback,object>>
+			  m_queue =
+			   new BlockingCollection<KeyValuePair<SendOrPostCallback,object>>();
+ 
+			public override void Post(SendOrPostCallback d, object state)
+			{
+				m_queue.Add(
+					new KeyValuePair<SendOrPostCallback,object>(d, state));
+			}
+ 
+			public void RunOnCurrentThread()
+			{
+				KeyValuePair<SendOrPostCallback, object> workItem;
+				while(m_queue.TryTake(out workItem, Timeout.Infinite))
+					workItem.Key(workItem.Value);
+			}
+ 
+			public void Complete() { m_queue.CompleteAdding(); }
 
-		static void printVersion()
-		{
-			Console.WriteLine("hbrunner version {0}", Assembly.GetCallingAssembly().GetAssemblyVersion());
-		}
-
-		static void printHelp()
-		{
-			Console.WriteLine("usage: hbrunner [options] file");
-			Console.WriteLine("  --version\t\tPrints version information");
-			Console.WriteLine("  --v\t\tUps the log level to Warn");
-			Console.WriteLine("  --vv\t\tUps the log level to Info");
-			Console.WriteLine("  --vvv\t\tUps the log level to Debug");
-			/*Console.WriteLine("  --print-tracks\t\tPrints track information from file");
-			Console.WriteLine("  --tracks=(Number)\tRiponly the tracks specified this can be a , separated list");
-			Console.WriteLine("  --no-metadata\t\tDo not set metadata");
-			Console.WriteLine("  --metadata-only\tDon't encode just write metadata");
-			Console.WriteLine("  --config=(configfile)\tA custom config file to override values in all other configs");*/
 		}
 
 		static int Main(String[] args)
@@ -59,64 +64,25 @@ namespace Sannel.HandBrakeRunner
 			Arguments arguments = new Arguments();
 			arguments.Parse(args);
 
-			if (arguments.HasArgument("vvv"))
-			{
-				changeLogLevel("DEBUG");
-#if DEBUG
-				log.Fatal("Fatal Color");
-				log.Error("Error Color");
-				log.Warn("Warn Color");
-				log.Info("Info Color");
-				log.Debug("Debug Color");
-#endif
-			}
-			else if (arguments.HasArgument("vv"))
-			{
-				changeLogLevel("INFO");
-			}
-			else if (arguments.HasArgument("v"))
-			{
-				changeLogLevel("WARN");
-			}
+			Runner runner = new Runner();
 
-			if (log.IsInfoEnabled)
+
+			var prevCtx = SynchronizationContext.Current;
+			try
 			{
-				log.InfoFormat("Version {0}", Assembly.GetCallingAssembly().GetAssemblyVersion());
+				var syncCtx = new SingleThreadSynchronizationContext();
+				SynchronizationContext.SetSynchronizationContext(syncCtx);
+
+				var t = runner.RunAsync(arguments);
+				t.ContinueWith(
+					delegate { syncCtx.Complete(); }, TaskScheduler.Default);
+
+				syncCtx.RunOnCurrentThread();
+
+				var results = t.GetAwaiter().GetResult();
+				return results;
 			}
-
-			if (log.IsDebugEnabled)
-			{
-				foreach (var key in arguments.ArgumentValues.Keys)
-				{
-					if (arguments.ArgumentValues[key] == null)
-					{
-						log.DebugFormat("Argument --{0} as passed", key);
-					}
-					else
-					{
-						log.DebugFormat("Argument --{0}={1} as passed", key, arguments.ArgumentValues[key]);
-					}
-				}
-
-				foreach (var item in arguments.NonArgumentValues)
-				{
-					log.DebugFormat("Argument {0} passed", item);
-				}
-			}
-
-			if (arguments.HasArgument("version"))
-			{
-				printVersion();
-				return 0;
-			}
-
-			if (arguments.HasArgument("help"))
-			{
-				printHelp();
-				return 0;
-			}
-
-			return 0;
+			finally { SynchronizationContext.SetSynchronizationContext(prevCtx); }
 		}
 	}
 }

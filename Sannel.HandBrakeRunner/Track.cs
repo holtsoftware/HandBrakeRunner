@@ -3,6 +3,7 @@ using Sannel.HandBrakeRunner.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -40,6 +41,8 @@ namespace Sannel.HandBrakeRunner
 			{
 				throw new ArgumentNullException("diskFullPath");
 			}
+
+			String diskDirectory = Path.GetDirectoryName(Path.GetFullPath(diskFullPath));
 
 			var templateAttribute = track.Attribute("template");
 			if (templateAttribute != null)
@@ -89,7 +92,7 @@ namespace Sannel.HandBrakeRunner
 						log.DebugFormat("Found Attribute. Name: {0} Value: {1}", attribute.Name, attribute.Value);
 					}
 
-					SetValue(attribute.Name.ToString(), attribute.Value);
+					SetValue(attribute.Name.ToString(), attribute.Value, diskDirectory);
 				}
 				else if (log.IsDebugEnabled)
 				{
@@ -106,7 +109,7 @@ namespace Sannel.HandBrakeRunner
 						log.DebugFormat("Found Node. Name: {0} Value: {1}", element.Name, element.Value);
 					}
 
-					SetValue(element.Name.ToString(), element.Value);
+					SetValue(element.Name.ToString(), element.Value, diskDirectory);
 
 				}
 				else if (log.IsDebugEnabled)
@@ -133,6 +136,7 @@ namespace Sannel.HandBrakeRunner
 				}
 
 				var template = document.Root;
+				var directory = Path.GetDirectoryName(Path.GetFullPath(fullPath));
 
 				foreach (var attribute in template.Attributes())
 				{
@@ -143,7 +147,7 @@ namespace Sannel.HandBrakeRunner
 							log.DebugFormat("Found Attribute. Name: {0} Value: {1}", attribute.Name, attribute.Value);
 						}
 
-						SetValue(attribute.Name.ToString(), attribute.Value);
+						SetValue(attribute.Name.ToString(), attribute.Value, directory);
 					}
 					else if (log.IsDebugEnabled)
 					{
@@ -160,7 +164,7 @@ namespace Sannel.HandBrakeRunner
 							log.DebugFormat("Found Node. Name: {0} Value: {1}", element.Name, element.Value);
 						}
 						
-						SetValue(element.Name.ToString(), element.Value);
+						SetValue(element.Name.ToString(), element.Value, directory);
 						
 					}
 					else if (log.IsDebugEnabled)
@@ -194,12 +198,12 @@ namespace Sannel.HandBrakeRunner
 		/// </summary>
 		/// <param name="key">The key associated with the desired value.</param>
 		/// <returns></returns>
-		public virtual string this[string key]
+		public override PropertyMetaData this[string key]
 		{
 			get
 			{
 				var fixedKey = NormalizeKey(key);
-				String value = null;
+				PropertyMetaData value = null;
 
 				if (Values.ContainsKey(fixedKey))
 				{
@@ -211,6 +215,8 @@ namespace Sannel.HandBrakeRunner
 					value = Disk[fixedKey];
 				}
 
+				value = ResolveFormatAndMethods(value);
+
 				return value;
 			}
 		}
@@ -220,9 +226,9 @@ namespace Sannel.HandBrakeRunner
 		/// </summary>
 		/// <param name="key">The key associated with the desired value.</param>
 		/// <returns></returns>
-		public virtual Task<string> GetValueAsync(string key)
+		public virtual Task<PropertyMetaData> GetValueAsync(string key)
 		{
-			return Task.Run<String>(() =>
+			return Task.Run<PropertyMetaData>(() =>
 			{
 				return this[key];
 			});

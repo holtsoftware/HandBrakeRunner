@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Sannel.HandBrakeRunner.Interfaces
@@ -15,13 +16,17 @@ namespace Sannel.HandBrakeRunner.Interfaces
 	public abstract class ValuesBase
 	{
 		private ILog log = LogManager.GetLogger(typeof(ValuesBase));
+		private Dictionary<String, PropertyMetaData> values = new Dictionary<string, PropertyMetaData>();
 
-		private Dictionary<String, String> values = new Dictionary<string, string>();
+		public abstract PropertyMetaData this[String key]
+		{
+			get;
+		}
 
 		/// <summary>
 		/// The Collection of Values associated with this object.
 		/// </summary>
-		protected Dictionary<String, string> Values
+		protected Dictionary<String, PropertyMetaData> Values
 		{
 			get
 			{
@@ -48,7 +53,7 @@ namespace Sannel.HandBrakeRunner.Interfaces
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		protected virtual String NormalizeKey(String key)
+		public static String NormalizeKey(String key)
 		{
 			return key.ToUpper(CultureInfo.InvariantCulture).Trim();
 		}
@@ -58,7 +63,7 @@ namespace Sannel.HandBrakeRunner.Interfaces
 		/// </summary>
 		/// <param name="name">The name of the value</param>
 		/// <param name="value">The value to set it to</param>
-		protected void SetValue(String name, String value)
+		protected void SetValue(String name, String value, String fileDirectory)
 		{
 			if (String.IsNullOrWhiteSpace(name))
 			{
@@ -69,7 +74,95 @@ namespace Sannel.HandBrakeRunner.Interfaces
 				return;
 			}
 
-			Values[NormalizeKey(name)] = value;
+			if(String.IsNullOrWhiteSpace(fileDirectory))
+			{
+				fileDirectory = Environment.CurrentDirectory;
+			}
+
+			Values[NormalizeKey(name)] = new PropertyMetaData
+			{
+				Value = value,
+				FullPath = fileDirectory
+			};
 		}
+
+		protected PropertyMetaData ResolveFormatAndMethods(PropertyMetaData value)
+		{
+			if (value == null)
+			{
+				return null;
+			}
+			String fixedValue = VariableReferenceRegex.Replace(value, VariableMatch);
+			fixedValue = MethodReferenceRegex.Replace(fixedValue, MethodMatch);
+			return new PropertyMetaData
+				{
+					Value = fixedValue,
+					FullPath = value.FullPath
+				};
+		}
+
+		protected virtual String MethodMatch(Match m)
+		{
+			String method = m.Groups["Method"].Value;
+			String param = m.Groups["Params"].Value;
+
+			if (!String.IsNullOrWhiteSpace(method))
+			{
+				return Methods.FindAndExecuteMethod(method, this, param);
+			}
+
+			return m.Value;
+		}
+
+		protected virtual String VariableMatch(Match m)
+		{
+			var key = m.Groups["Key"].Value;
+			var format = m.Groups["Format"].Value;
+
+			if (!String.IsNullOrWhiteSpace(key))
+			{
+				String value = this[key];
+				if (!String.IsNullOrWhiteSpace(format))
+				{
+					if (format.IndexOf('.') > -1)
+					{
+						double dvalue;
+						if (double.TryParse(value, out dvalue))
+						{
+							return dvalue.ToString(format, CultureInfo.InvariantCulture);
+						}
+					}
+					else
+					{
+						long lvalue;
+						if (long.TryParse(value, out lvalue))
+						{
+							return lvalue.ToString(format, CultureInfo.InvariantCulture);
+						}
+					}
+
+					return value;
+				}
+				else
+				{
+					return value;
+				}
+			}
+
+			return m.Value;
+		}
+
+		public readonly static Regex VariableReferenceRegex = new Regex("\\${(?<Key>[a-zA-Z0-9-_]*)(:(?<Format>[0]+[.]?[0]+))?}",
+								RegexOptions.IgnoreCase
+								| RegexOptions.CultureInvariant
+								| RegexOptions.IgnorePatternWhitespace
+								| RegexOptions.Compiled
+								);
+		public readonly static Regex MethodReferenceRegex = new Regex("\\%{(?<Method>[a-zA-Z0-9-_]+)\\((?<Params>.+)\\)}",
+								RegexOptions.IgnoreCase
+								| RegexOptions.CultureInvariant
+								| RegexOptions.IgnorePatternWhitespace
+								| RegexOptions.Compiled
+								);
 	}
 }

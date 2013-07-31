@@ -11,11 +11,11 @@ namespace Sannel.HandBrakeRunner.Interfaces
 	{
 		Task<bool> LoadAsync(String fileName);
 
-		String this[String key]
+		PropertyMetaData this[String key]
 		{
 			get;
 		}
 
-		Task<String> GetValueAsync(String key);
+		Task<PropertyMetaData> GetValueAsync(String key);
 	}
 }
