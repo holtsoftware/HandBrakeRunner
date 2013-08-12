@@ -174,7 +174,7 @@ namespace Sannel.HandBrakeRunner
 			}
 
 			int[] tracks = new int[0];
-			if (!String.IsNullOrWhiteSpace(args.ArgumentValues["tracks"]))
+			if (args.HasArgument("tracks") && !String.IsNullOrWhiteSpace(args.ArgumentValues["tracks"]))
 			{
 				tracks = ParseTracks(args.ArgumentValues["tracks"]);
 				if (tracks == null)
@@ -321,6 +321,8 @@ namespace Sannel.HandBrakeRunner
 			{
 				if (tracks.Length == 0 || tracks.Contains(i))
 				{
+					var track = disk.Tracks[i];
+
 					if (log.IsDebugEnabled)
 					{
 						log.DebugFormat("Using track {0}", i);
@@ -336,8 +338,14 @@ namespace Sannel.HandBrakeRunner
 					{
 						return false;
 					}
+					var orgTempFile = Path.GetTempFileName();
 
-					var tmpFile = Path.ChangeExtension(Path.GetTempFileName(), encoder.GetFileExt(track));
+					if (File.Exists(orgTempFile))
+					{
+						File.Delete(orgTempFile);
+					}
+
+					var tmpFile = Path.ChangeExtension(orgTempFile, encoder.GetFileExt(track));
 					var destDirProp = await track.GetValueAsync("DestinationDirectory");
 					if (destDirProp == null)
 					{
@@ -393,6 +401,11 @@ namespace Sannel.HandBrakeRunner
 							log.Fatal("An error accrued while applying metadata exiting.");
 						}
 						return false;
+					}
+
+					if (File.Exists(tmpFile))
+					{
+						File.Delete(tmpFile);
 					}
 				}
 				else
