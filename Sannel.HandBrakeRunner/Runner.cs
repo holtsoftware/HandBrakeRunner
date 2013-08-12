@@ -317,15 +317,15 @@ namespace Sannel.HandBrakeRunner
 				return false;
 			}
 
-			for (int i = 1; i <= disk.Tracks.Count; i++)
+			for (int i = 0; i < disk.Tracks.Count; i++)
 			{
-				if (tracks.Length == 0 || tracks.Contains(i))
+				if (tracks.Length == 0 || tracks.Contains(i + 1))
 				{
 					var track = disk.Tracks[i];
 
 					if (log.IsDebugEnabled)
 					{
-						log.DebugFormat("Using track {0}", i);
+						log.DebugFormat("Using track {0}", i + 1);
 					}
 
 					IEncoder encoder = await getEncoderAsync(track);
@@ -383,24 +383,46 @@ namespace Sannel.HandBrakeRunner
 						Directory.CreateDirectory(Path.GetDirectoryName(fullDestinationFilePath));
 					}
 
-					var rvalue = await encoder.RunAsync(track, tmpFile);
-					if (rvalue == false)
+					bool rvalue;
+
+					try
 					{
-						if (log.IsFatalEnabled)
+						rvalue = await encoder.RunAsync(track, tmpFile);
+						if (rvalue == false)
 						{
-							log.Fatal("An error accrued while encoding exiting.");
+							if (log.IsFatalEnabled)
+							{
+								log.Fatal("An error accrued while encoding exiting.");
+							}
+							return false;
 						}
-						return false;
+					}
+					catch (Exception e)
+					{
+						if (log.IsErrorEnabled)
+						{
+							log.Error("Exception was through while executing encoder.RunAsync", e);
+						}
 					}
 
-					rvalue = await metaData.RunAsync(track, tmpFile, fullDestinationFilePath);
-					if (rvalue == false)
+					try
 					{
-						if (log.IsFatalEnabled)
+						rvalue = await metaData.RunAsync(track, tmpFile, fullDestinationFilePath);
+						if (rvalue == false)
 						{
-							log.Fatal("An error accrued while applying metadata exiting.");
+							if (log.IsFatalEnabled)
+							{
+								log.Fatal("An error accrued while applying metadata exiting.");
+							}
+							return false;
 						}
-						return false;
+					}
+					catch(Exception e)
+					{
+						if (log.IsErrorEnabled)
+						{
+							log.Error("Exception was through while executing metaData.RunAsync", e);
+						}
 					}
 
 					if (File.Exists(tmpFile))
@@ -412,7 +434,7 @@ namespace Sannel.HandBrakeRunner
 				{
 					if (log.IsDebugEnabled)
 					{
-						log.DebugFormat("Not running track {0}", i);
+						log.DebugFormat("Not running track {0}", i + 1);
 					}
 				}
 			}
