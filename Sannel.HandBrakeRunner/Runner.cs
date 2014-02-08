@@ -30,6 +30,7 @@ namespace Sannel.HandBrakeRunner
 	public class Runner
 	{
 		private static readonly ILog log = LogManager.GetLogger(typeof(Runner));
+		internal static Arguments Args;
 
 		public Runner()
 		{
@@ -110,6 +111,7 @@ namespace Sannel.HandBrakeRunner
 
 		public async Task<int> RunAsync(Arguments args)
 		{
+			Runner.Args = args;
 			if (args.HasArgument("vvv"))
 			{
 				changeLogLevel("DEBUG");
@@ -410,7 +412,11 @@ namespace Sannel.HandBrakeRunner
 						rvalue = await metaData.RunAsync(track, tmpFile, fullDestinationFilePath);
 						if (rvalue == false)
 						{
-							if (log.IsFatalEnabled)
+							if(Args.HasArgument("continue-meta-error") || Args.HasArgument("cme"))
+							{
+								File.Move(tmpFile, fullDestinationFilePath); 
+							}
+							else if (log.IsFatalEnabled)
 							{
 								log.Fatal("An error accrued while applying metadata exiting.");
 							}
@@ -463,6 +469,7 @@ namespace Sannel.HandBrakeRunner
 			Console.WriteLine("  --vv\t\tUps the log level to Info");
 			Console.WriteLine("  --vvv\t\tUps the log level to Debug");
 			Console.WriteLine("  --tracks=(Range)\t\tThe Track number(s) comma separated and/or Track Range. i.e. 1,3,5-9");
+			Console.WriteLine("  --continue-meta-error(-cme)\t\tContinue on metadata error.");
 			/*Console.WriteLine("  --print-tracks\t\tPrints track information from file");
 			Console.WriteLine("  --no-metadata\t\tDo not set metadata");
 			Console.WriteLine("  --metadata-only\tDon't encode just write metadata");
