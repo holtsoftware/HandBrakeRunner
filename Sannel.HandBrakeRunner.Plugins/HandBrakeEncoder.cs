@@ -72,10 +72,19 @@ namespace Sannel.HandBrakeRunner.Plugins
 
 			StringBuilder builder = new StringBuilder();
 
-			var prop = track["INPUTPATH"];
-			if (prop != null)
+			PropertyMetaData prop;
+
+			if (track.Args.HasArgument("inputpath"))
 			{
-				builder.AppendFormat("-i \"{0}\" ", prop);
+				builder.AppendFormat("-i \"{0}\" ", track.Args.ArgumentValue("inputpath"));
+			}
+			else
+			{
+				prop = track["INPUTPATH"];
+				if (prop != null)
+				{
+					builder.AppendFormat("-i \"{0}\" ", prop);
+				}
 			}
 
 			prop = track["TitleChapter"];

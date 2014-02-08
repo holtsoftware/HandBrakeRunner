@@ -23,5 +23,11 @@ namespace Sannel.HandBrakeRunner.Interfaces
 		}
 
 		Task<PropertyMetaData> GetValueAsync(String key);
+
+		Arguments Args
+		{
+			get;
+			set;
+		}
 	}
 }

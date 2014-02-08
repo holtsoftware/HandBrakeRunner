@@ -16,6 +16,12 @@ namespace Sannel.HandBrakeRunner
 	{
 		private ILog log = LogManager.GetLogger(typeof(Track));
 
+		public Arguments Args
+		{
+			get;
+			set;
+		}
+
 		public Task<bool> LoadTrackAsync(System.Xml.Linq.XElement track, String diskFullPath)
 		{
 			return Task.Run<bool>(() =>

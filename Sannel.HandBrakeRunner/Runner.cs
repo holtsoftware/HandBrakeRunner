@@ -389,6 +389,7 @@ namespace Sannel.HandBrakeRunner
 
 					try
 					{
+						track.Args = Args;
 						rvalue = await encoder.RunAsync(track, tmpFile);
 						if (rvalue == false)
 						{
